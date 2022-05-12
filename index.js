@@ -63,28 +63,29 @@ gl.vertexAttribPointer(coloursLocation, 3, gl.FLOAT, false, 7 * 4, 3 * 4);
 
 gl.useProgram(program);
 
-let x1 = 0,
-  y1 = 0,
-  x2 = 0,
-  y2 = 0.7;
+let x1 = 0;
+let y1 = 0.7;
+
+let isSpinning = false;
 
 const incr = 0.025;
 
-let model = createIdentityMat4();
+let model1 = translate(x1, y1, 0);
+let model2 = createIdentityMat4();
+let spinner = null;
+const inputSpeed = document.getElementById("inputSpeed");
+inputSpeed.value = 30;
 
 draw();
 
 function draw() {
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, model);
-  gl.uniform1f(gl.getUniformLocation(program, "y"), y1);
-  gl.uniform1f(gl.getUniformLocation(program, "x"), x1);
-
+  gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, model1);
   gl.drawArrays(gl.TRIANGLES, 0, box.length / 7);
-  // gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, model);
 
-  gl.uniform1f(gl.getUniformLocation(program, "y"), y2);
-  gl.uniform1f(gl.getUniformLocation(program, "x"), x2);
+  gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, model2);
+  gl.uniform1f(gl.getUniformLocation(program, "y"), -0.25);
+  gl.uniform1f(gl.getUniformLocation(program, "x"), 0);
   gl.drawArrays(gl.TRIANGLES, 0, box.length / 7);
 
   requestAnimationFrame(draw);
@@ -93,53 +94,31 @@ function draw() {
 document.onkeydown = (event) => {
   switch (event.key) {
     case "ArrowDown":
-      if (y1 > -0.779) y1 -= incr;
+      y1 -= incr;
       break;
     case "ArrowUp":
-      if (y1 < 0.779) y1 += incr;
+      y1 += incr;
       break;
     case "ArrowLeft":
-      if (x1 > -0.779) x1 -= incr;
+      x1 -= incr;
       break;
     case "ArrowRight":
-      if (x1 < 0.779) x1 += incr;
+      x1 += incr;
       break;
   }
+  model1 = translate(x1, y1, 0);
 };
 
-const inputSpeed = document.getElementById("inputSpeed");
-inputSpeed.value = 45;
+
 document.getElementById("spnSpeed").innerHTML =
   inputSpeed.value * (Math.PI / 180);
-  
+
 document.querySelectorAll("button").forEach((element) => {
   element.onclick = () => {
-    let radians = Math.PI / 8;
-    switch (element.dataset.rotation) {
-      case "x":
-        model = rotate(model, rotateX(radians));
-        break;
-      case "y":
-        model = rotate(model, rotateY(radians));
-        break;
-      case "z":
-        model = rotate(model, rotateZ(radians));
-        break;
-    }
+    if (element.dataset.rotation)
+      rotation(element.dataset.rotation, Math.PI / 8);
 
-    radians = convertToRad(inputSpeed.value);
-
-    switch (element.dataset.spinning) {
-      case "x":
-        model = rotate(model, rotateX(radians));
-        break;
-      case "y":
-        model = rotate(model, rotateY(radians));
-        break;
-      case "z":
-        model = rotate(model, rotateZ(radians));
-        break;
-    }
+    if (element.dataset.spinning) spin(element.dataset.spinning);
   };
 });
 
@@ -148,6 +127,44 @@ inputSpeed.oninput = (event) => {
     event.target.value * (Math.PI / 180);
   console.log(event.target.value);
 };
+
+function rotation(axis, radians) {
+  switch (axis) {
+    case "x":
+      model2 = rotate(model2, rotateX(radians));
+      break;
+    case "y":
+      model2 = rotate(model2, rotateY(radians));
+      break;
+    case "z":
+      model2 = rotate(model2, rotateZ(radians));
+      break;
+  }
+}
+
+function spin(axis) {
+  let radians = convertToRad(inputSpeed.value);
+  isSpinning = !isSpinning;
+  if (isSpinning) {
+    spinner = setInterval(() => {
+      radians = convertToRad(inputSpeed.value);
+      console.log("spinning");
+      switch (axis) {
+        case "x":
+          model2 = rotate(model2, rotateX(radians));
+          break;
+        case "y":
+          model2 = rotate(model2, rotateY(radians));
+          break;
+        case "z":
+          model2 = rotate(model2, rotateZ(radians));
+          break;
+      }
+    }, 150);
+  } else {
+    clearInterval(spinner);
+  }
+}
 
 function convertToRad(degrees) {
   return degrees * (Math.PI / 180);
