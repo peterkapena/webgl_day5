@@ -73,8 +73,7 @@ const incr = 0.025;
 let model1 = translate(x1, y1, 0);
 let model2 = createIdentityMat4();
 let spinner = null;
-const inputSpeed = document.getElementById("inputSpeed");
-inputSpeed.value = 30;
+let spinVelocity = Math.PI / 8;
 
 draw();
 
@@ -109,24 +108,21 @@ document.onkeydown = (event) => {
   model1 = translate(x1, y1, 0);
 };
 
-
-document.getElementById("spnSpeed").innerHTML =
-  inputSpeed.value * (Math.PI / 180);
-
 document.querySelectorAll("button").forEach((element) => {
   element.onclick = () => {
     if (element.dataset.rotation)
       rotation(element.dataset.rotation, Math.PI / 8);
 
     if (element.dataset.spinning) spin(element.dataset.spinning);
+    if (element.dataset.speed) {
+      if (element.dataset.speed === "+") {
+        spinVelocity += 0.5;
+      } else if (element.dataset.speed === "-") {
+        spinVelocity -= 0.5;
+      }
+    }
   };
 });
-
-inputSpeed.oninput = (event) => {
-  document.getElementById("spnSpeed").innerHTML =
-    event.target.value * (Math.PI / 180);
-  console.log(event.target.value);
-};
 
 function rotation(axis, radians) {
   switch (axis) {
@@ -143,12 +139,11 @@ function rotation(axis, radians) {
 }
 
 function spin(axis) {
-  let radians = convertToRad(inputSpeed.value);
   isSpinning = !isSpinning;
   if (isSpinning) {
     spinner = setInterval(() => {
-      radians = convertToRad(inputSpeed.value);
-      console.log("spinning");
+      radians = convertToRad(spinVelocity);
+      document.getElementById("spnSpeed").innerHTML = spinVelocity;
       switch (axis) {
         case "x":
           model2 = rotate(model2, rotateX(radians));
