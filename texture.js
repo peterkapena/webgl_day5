@@ -105,4 +105,4 @@ gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
 gl.clear(gl.COLOR_BUFFER_BIT);
 // gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
 gl.activeTexture(gl.TEXTURE0);
-gl.drawArrays(gl.TRIANGLES, 0, vertices / 3);
+gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
