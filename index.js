@@ -17,23 +17,6 @@ uniform float x;
 uniform mat4 model;
 
   void main(){
-    //Along the z axis
-    // gl_Position.x = cos(angle) * pos.x - sin(angle) * pos.y;
-    // gl_Position.y = sin(angle) * pos.x + cos(angle) * pos.y;
-    // gl_Position.z = pos.z;
-
-    //Along the x axis
-    // gl_Position.x = cos(0.051) * pos.x - sin(0.051) * pos.y;//pos.x;
-    // gl_Position.y = cos(angle) * pos.y - sin(angle) * pos.z;
-    // gl_Position.z = sin(angle) * pos.y + cos(angle) * pos.z;
-
-    //Along the y axis
-    // gl_Position.x = cos(angle) * pos.x - sin(angle) * pos.z;
-    // gl_Position.y = pos.y + y;
-    // gl_Position.z = sin(angle) * pos.y + cos(angle) * pos.y;
-
-      // gl_Position.w = 1.0;
-
       gl_Position = model * vec4(pos, 1.0) + vec4(x, y, 0, 0);
       vcolours = colours;
   }`;
@@ -71,6 +54,8 @@ let isSpinning = false;
 const incr = 0.025;
 
 let model1 = translate(x1, y1, 0);
+model1 = rotate(model1, rotateX(Math.PI / 8));
+model1 = rotate(model1, rotateY(Math.PI / 8));
 let model2 = createIdentityMat4();
 let spinner = null;
 let spinVelocity = Math.PI / 8;
@@ -106,6 +91,8 @@ document.onkeydown = (event) => {
       break;
   }
   model1 = translate(x1, y1, 0);
+  model1 = rotate(model1, rotateX(Math.PI / 8));
+  model1 = rotate(model1, rotateY(Math.PI / 8));
 };
 
 document.querySelectorAll("button").forEach((element) => {

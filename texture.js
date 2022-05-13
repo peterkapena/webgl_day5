@@ -4,7 +4,7 @@ const image = document.getElementById("sa_flag");
 if (!gl) {
   throw new Error("WebGL not available/supported");
 }
-const r = 0.25;
+const r = 0.5;
 
 const vertices =new Float32Array( [
     //x,y,z
