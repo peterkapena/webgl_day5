@@ -27,6 +27,7 @@ function setProgram(gl, vertexShader, fragmentShader) {
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     throw new Error(gl.getProgramInfoLog(program));
   }
+  gl.enable(gl.DEPTH_TEST);
   return program;
 }
 

@@ -6,26 +6,32 @@ if (!gl) {
 }
 const r = 0.5;
 
-const vertices =new Float32Array( [
-    //x,y,z
-    r,r,r, 
-    r,-r,r,
-    -r,r,r, 
-    -r,r,r,
-    r,-r,r,
-    -r,-r,r
-])
+const vertices = new Float32Array([
+  //x,y,z
+  r,
+  r,
+  r,
+  r,
+  -r,
+  r,
+  -r,
+  r,
+  r,
+  -r,
+  r,
+  r,
+  r,
+  -r,
+  r,
+  -r,
+  -r,
+  r,
+]);
 
 const texCoords = new Float32Array([
-    //x,y
-    1,1,
-    1,0,
-    0,1,
-    0,1,
-    1,0,
-    0,0
-])
-
+  //x,y
+  1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0,
+]);
 
 gl.clearColor(0, 0, 0, 0.25);
 gl.clear(gl.COLOR_BUFFER_BIT);
@@ -102,7 +108,7 @@ gl.enableVertexAttribArray(textureLocation);
 gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
 gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
 
-gl.clear(gl.COLOR_BUFFER_BIT);
+// gl.clear(gl.COLOR_BUFFER_BIT);
 // gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
 gl.activeTexture(gl.TEXTURE0);
 gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);

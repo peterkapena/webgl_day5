@@ -1,4 +1,5 @@
 const gl = document.querySelector("canvas").getContext("webgl");
+const image = document.getElementById("sa_flag");
 
 if (!gl) {
   throw new Error("WebGL not available/supported");
@@ -11,22 +12,27 @@ const vertexShaderSrc = `
 attribute vec3 pos;
 attribute vec4 colours;
 varying vec4 vcolours;
-uniform float angle;
 uniform float y;
 uniform float x;
 uniform mat4 model;
+attribute vec2 vtexture;
+varying vec2 fragtexture;
 
   void main(){
       gl_Position = model * vec4(pos, 1.0) + vec4(x, y, 0, 0);
       vcolours = colours;
+      fragtexture = vtexture;
   }`;
 
 const fragmentShaderSrc = `
 precision mediump float;
 varying vec4 vcolours;
+varying vec2 fragtexture;
+uniform sampler2D fragsampler;
 
     void main(){
-        gl_FragColor = vec4(vcolours);    // red
+        gl_FragColor = texture2D(fragsampler, fragtexture);
+        // gl_FragColor = vec4(vcolours);    // red
     }`;
 
 const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSrc, gl);
@@ -36,13 +42,28 @@ const program = setProgram(gl, vertexShader, fragmentShader);
 
 setBuffer(gl, box);
 
+const textureBuffer = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
 const positionLocation = gl.getAttribLocation(program, "pos");
 gl.enableVertexAttribArray(positionLocation);
-gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 7 * 4, 0);
+gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 7*4, 0);
 
-const coloursLocation = gl.getAttribLocation(program, "colours");
-gl.enableVertexAttribArray(coloursLocation);
-gl.vertexAttribPointer(coloursLocation, 3, gl.FLOAT, false, 7 * 4, 3 * 4);
+// const coloursLocation = gl.getAttribLocation(program, "colours");
+// gl.enableVertexAttribArray(coloursLocation);
+// gl.vertexAttribPointer(coloursLocation, 3, gl.FLOAT, false, 7 * 4, 3 * 4);
+
+const texCoordBuffer = setBuffer(gl, textureCoords);
+
+const textureLocation = gl.getAttribLocation(program, "vtexture");
+gl.enableVertexAttribArray(textureLocation);
+gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
 
 gl.useProgram(program);
 
@@ -54,15 +75,17 @@ let isSpinning = false;
 const incr = 0.025;
 
 let model1 = translate(x1, y1, 0);
-model1 = rotate(model1, rotateX(Math.PI / 8));
-model1 = rotate(model1, rotateY(Math.PI / 8));
+// model1 = rotate(model1, rotateY(Math.PI ));
+// model1 = rotate(model1, rotateY(Math.PI ));
 let model2 = createIdentityMat4();
 let spinner = null;
-let spinVelocity = Math.PI / 8;
+let spinVelocity = 10;
 
 draw();
 
 function draw() {
+  gl.activeTexture(gl.TEXTURE0);
+
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.uniformMatrix4fv(gl.getUniformLocation(program, "model"), false, model1);
   gl.drawArrays(gl.TRIANGLES, 0, box.length / 7);
@@ -97,8 +120,7 @@ document.onkeydown = (event) => {
 
 document.querySelectorAll("button").forEach((element) => {
   element.onclick = () => {
-    if (element.dataset.rotation)
-      rotation(element.dataset.rotation, Math.PI / 8);
+    if (element.dataset.rotation) rotation(element.dataset.rotation, Math.PI);
 
     if (element.dataset.spinning) spin(element.dataset.spinning);
     if (element.dataset.speed) {
